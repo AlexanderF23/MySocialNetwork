@@ -1,4 +1,8 @@
-﻿@{
+﻿@model MySocialNetwork.Models.UserViewModel
+@section Scripts{
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+@{
     ViewData["Title"] = "Login";
 }
 
@@ -10,19 +14,42 @@
 </head>
 <body>
 <div>
+    
+    <h2>Login</h2>
+    
+    <form method="post">
+        <div class="from-group">
+            <label asp-for="Username"></label>
+            <input asp-for="Username" class="form-control" />
+            <span asp-validation-for="Username" class="text-danger"></span>
+        </div>
+        
+        <div class="form-group">
+            <label asp-for="Password"></label>
+            <input asp-for="Password" type="password" class="form-control"/>
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+    
+    <a href="/Account/Register">Ingen bruger? Register her</a>
+    
+    
+    <!--  // Start
     <h2>Login her!</h2>
     <form method="post">
-        <input name="username" placeholder="Brugernavn" required />
-        <input name="password" placeholder="Adgangskode" type="password" required /> 
+        <input name="username" placeholder="Brugernavn" required/>
+        <input name="password" placeholder="Adgangskode" type="password" required/>
         <button>Login</button>
     </form>
     @if (ViewBag.Error != null)
     {
         <p style="color:red">@ViewBag.Error</p>
     }
-    
-    
-    
+    //End -->
+
+
     <a href="/Account/Register">Igen Bruger? Registrer her!</a>
 </div>
 </body>
