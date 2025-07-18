@@ -1,0 +1,25 @@
+﻿@model TModel
+
+@{
+    ViewData["Title"] = "Registrering";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Registrering</title>
+</head>
+<body>
+    <div>
+        <h2>Registrer</h2>
+        <form method="post">
+            <input name="username" placeholder="Brugernavn" required/>
+            <input name="password" placeholder="Adgangskode" type="password" required/>
+            <button>Registrer</button>
+        </form>
+        
+        <a href="/Account/Login">Allerede bruger? Log ind her!</a>
+    </div>
+</body>
+</html>
