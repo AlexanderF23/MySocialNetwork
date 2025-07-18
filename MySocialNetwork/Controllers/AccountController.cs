@@ -1,43 +1,56 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MySocialNetwork.Services;
+﻿
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 
-
-namespace MySocialNetwork.Controllers;
-
-public class AccountController : Controller
+namespace MySocialNetwork.Controllers
 {
-    public IActionResult Login() => View();
-
-    [HttpPost]
-    public IActionResult Login(string username, string password)
+    public class AccountController : Controller
     {
-        if (UserService.ValidateLogin(username, password))
+        private static Dictionary<string, string> users = new Dictionary<string, string>();
+
+        [HttpGet]
+        public IActionResult Login()
         {
-            HttpContext.Session.SetString("User", username);
-            return RedirectToAction("Index", "Home");
+            return View();
         }
 
-        ViewBag.Error = "Forkert Brugernavn eller adgangskode";
-        return View();
+        [HttpPost]
+        public IActionResult Login(string username, string password)
+        {
+            if (users.TryGetValue(username, out var correctPassword) && correctPassword == password)
+            {
+                HttpContext.Session.SetString("User", username);
+                return RedirectToAction("Index", "Home");
+            }
+
+            ViewBag.Error = "Forkert brugernavn eller adgangskode.";
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Register(string username, string password)
+        {
+            if (!users.ContainsKey(username))
+            {
+                users[username] = password;
+                HttpContext.Session.SetString("User", username);
+                return RedirectToAction("Index", "Home");
+            }
+
+            ViewBag.Error = "Brugernavnet findes allerede.";
+            return View();
+        }
+
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Remove("User");
+            return RedirectToAction("Index", "Home");
+        }
     }
-
-
-    public IActionResult Register() => View();
-
-    [HttpPost]
-    public IActionResult Register(string username, string password)
-    {
-        if (UserService.Register(username, password))
-            return RedirectToAction("Login");
-
-        ViewBag.Error = "Brugernavn eksisterer allerede";
-        return View();
-    }
-
-    public IActionResult Logout()
-    {
-        HttpContext.Session.Remove("User");
-        return RedirectToAction("Login");
-    }
-
 }

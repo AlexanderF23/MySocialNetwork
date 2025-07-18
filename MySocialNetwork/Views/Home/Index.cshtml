@@ -1,8 +1,19 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Forside";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1>Velkommen til MySocialNetwork</h1>
+    @if (Context.Session.GetString("User") != null)
+    {
+        <p>Du er logget ind som: @Context.Session.GetString("User")</p>
+    }
+    else
+    {
+        <p>Du er ikke logget ind. <a href="//Account/Login">Login her</a></p>
+    }
+    else
+    {
+    <p>Du er ikke logget ind. <a href="//Account/Login">Login her</a></p>
+    }
 </div>
