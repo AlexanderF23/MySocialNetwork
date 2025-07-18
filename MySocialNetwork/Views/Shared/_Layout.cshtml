@@ -30,6 +30,16 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                     </li>
+                    <li class="nav-item" id="whoLogIn">
+                        @if (user != null)
+                        {
+                            <p>Logget ind som @user | <a href="/Account/logout">Log ud</a></p>
+                        }
+                        else
+                        {
+                            <a href="/Account/login">Login</a>
+                        }
+                    </li>
                 </ul>
             </div>
         </div>
@@ -41,7 +51,7 @@
     </main>
 </div>
 
-<!-- min egen del start -->
+<!-- min egen del start 
 
 @if (user != null)
 {
@@ -52,7 +62,7 @@ else
     <a href="/Account/login">Login</a>
 }
 
-<!-- min egen del slut -->
+ min egen del slut -->
 
 
 

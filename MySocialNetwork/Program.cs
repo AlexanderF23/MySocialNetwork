@@ -1,7 +1,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using MySocialNetwork.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// EF Core SQLite
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite("Data Source=mysocial.db"));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
