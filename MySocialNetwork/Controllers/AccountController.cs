@@ -1,8 +1,109 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using MySocialNetwork.Data;
 using MySocialNetwork.Models;
+using System.Linq;
 
+
+namespace MySocialNetwork.Controllers
+{
+    public class AccountController : Controller
+    {
+        private readonly AppDbContext _context;
+
+        public AccountController(AppDbContext context)
+        {
+            _context = context;
+        }
+        
+        //get /Account/Register
+        public IActionResult Register()
+        {
+            return View();
+        }
+        
+        //Post /Account/Register
+        [HttpPost]
+        public IActionResult Register(UserViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+
+            //tjek om brugernavn findes
+            if (_context.Users.Any(u => u.Username == model.Username))
+            {
+                ModelState.AddModelError(string.Empty, "Brugernavnet er allerede i brug");
+                return View(model);
+            }
+
+            var user = new User { Username = model.Username, Password = model.Password };
+            _context.Users.Add(user);
+            _context.SaveChanges();
+            
+            HttpContext.Session.SetString("User", user.Username);
+            return RedirectToAction("Index", "Home");
+        }
+        
+        //get /Account/Login
+        public IActionResult Login()
+        {
+            return View();
+        }
+        
+        //post /Account/Login
+        [HttpPost]
+        public IActionResult Login(UserViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+            
+            var user = _context.Users.FirstOrDefault(u =>
+                u.Username == model.Username && u.Password == model.Password);
+            
+            if (user != null)
+            {
+                HttpContext.Session.SetString("User", user.Username);
+                return RedirectToAction("Index", "Home");
+            }
+            
+            ModelState.AddModelError(string.Empty, "Forkert brugernavn eller adgangskode.");
+            return View(model);
+        }
+        
+        //get /Account/logout
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Index", "Home");
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//OLD AccountController
+/*
 namespace MySocialNetwork.Controllers
 {
     public class AccountController : Controller
@@ -80,5 +181,8 @@ namespace MySocialNetwork.Controllers
             HttpContext.Session.Remove("User");
             return RedirectToAction("Index", "Home");
         }
+
+        
     }
 }
+*/
