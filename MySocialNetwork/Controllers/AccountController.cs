@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using MySocialNetwork.Data;
 using MySocialNetwork.Models;
 using System.Linq;
+using Microsoft.AspNetCore.Identity;
 
 
 namespace MySocialNetwork.Controllers
@@ -10,6 +11,7 @@ namespace MySocialNetwork.Controllers
     public class AccountController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly PasswordHasher<User> _passwordHasher = new();
 
         public AccountController(AppDbContext context)
         {
@@ -37,7 +39,10 @@ namespace MySocialNetwork.Controllers
                 return View(model);
             }
 
-            var user = new User { Username = model.Username, Password = model.Password };
+            var user = new User { Username = model.Username };
+            user.Password = _passwordHasher.HashPassword(user, model.Password); //Hashing af adgangskode
+            
+            
             _context.Users.Add(user);
             _context.SaveChanges();
             
@@ -58,13 +63,16 @@ namespace MySocialNetwork.Controllers
             if (!ModelState.IsValid)
                 return View(model);
             
-            var user = _context.Users.FirstOrDefault(u =>
-                u.Username == model.Username && u.Password == model.Password);
-            
+            var user = _context.Users.FirstOrDefault(u => u.Username == model.Username);
             if (user != null)
             {
-                HttpContext.Session.SetString("User", user.Username);
-                return RedirectToAction("Index", "Home");
+                var result = _passwordHasher.VerifyHashedPassword(user, user.Password, model.Password);
+
+                if (result == PasswordVerificationResult.Success)
+                {
+                    HttpContext.Session.SetString("User", user.Username);
+                    return RedirectToAction("Index", "Home");
+                }
             }
             
             ModelState.AddModelError(string.Empty, "Forkert brugernavn eller adgangskode.");
