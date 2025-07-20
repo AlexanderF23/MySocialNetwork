@@ -1,0 +1,23 @@
+﻿@model List<MySocialNetwork.Models.Post>
+
+<h2>Feed</h2>
+
+<!-- formular til nyt opslag -->
+<form method="post" asp-action="Create">
+    <textarea name="content" class="form-control" placeholder="Skriv noget" rows="3"></textarea>
+    <button class="btn btn-primary mt-2">Post</button>
+</form>
+
+<hr/>
+
+<!-- viser alle opslag -->
+@foreach (var post in Model)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <strong>@post.Username:</strong>
+            <small class="text-muted">@post.CreatedAt.ToString("g")</small>
+            <p>@post.Content</p>
+        </div>
+    </div>
+}
