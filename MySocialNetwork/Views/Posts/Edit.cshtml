@@ -1,0 +1,11 @@
+﻿@model MySocialNetwork.Models.Post
+
+<h2>Rediger opslag</h2>
+
+<form method="post">
+    <textarea name="content" class="form-control" rows="3">@Model.Content</textarea>
+    <button class="btn btn-primary mt-2">Gem ændringer</button>
+</form>
+
+<a href="/Post">Tilbage til feed</a>
+

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using MySocialNetwork.Data;
 using MySocialNetwork.Models;
 
@@ -45,4 +46,67 @@ public class PostsController : Controller
         
         return RedirectToAction("Index");
     }
+    
+    //Get:/Post/Edit/5
+    public IActionResult Edit(int id)
+    {
+        var post = _context.Posts.FirstOrDefault(p => p.Id == id);
+        if (post == null)
+            return NotFound();
+        
+        var username = HttpContext.Session.GetString("User");
+        if (post.Username != username)
+            return Forbid(); //må ikke redigere andres opslag
+
+        return View(post);
+    }
+    
+    //POST /Pots/edit/5
+    [HttpPost]
+    public IActionResult Edit(int id, string content)
+    {
+        var post = _context.Posts.FirstOrDefault(p => p.Id == id);
+        if (post == null)
+            return NotFound();
+        
+        var username = HttpContext.Session.GetString("User");
+        if (post.Username != username)
+            return Forbid();
+
+        if (string.IsNullOrEmpty(content))
+        {
+            ModelState.AddModelError(string.Empty, "Indhold kan ikke være tomt");
+            return View(post);
+        }
+        
+        post.Content = content;
+        _context.SaveChanges();
+        
+        TempData["Message"] = "Opdateret";
+        
+        
+        return RedirectToAction("Index");
+    }
+    
+    //POST /post/delet/5
+    [HttpPost]
+    public IActionResult Delete(int id)
+    {
+        var post = _context.Posts.FirstOrDefault(p => p.Id == id);
+        if (post == null)
+            return NotFound();
+        
+        var username = HttpContext.Session.GetString("User");
+        if (post.Username != username)
+            return Forbid();
+
+        _context.Posts.Remove(post);
+        _context.SaveChanges();
+        return RedirectToAction("Index");
+    }
+
+
+    
+    
+    
 }
