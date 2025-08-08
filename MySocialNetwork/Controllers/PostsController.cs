@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using MySocialNetwork.Data;
 using MySocialNetwork.Models;
 
@@ -16,8 +17,18 @@ public class PostsController : Controller
 
     public IActionResult Index()
     {
-        var posts = _context.Posts.ToList();
-        return View(posts);
+    var posts = _context.Posts
+        .Select(p => new PostViewModel
+        {
+            Id = p.Id,
+            Content = p.Content,
+            Username = p.Username,
+            CreatedAt = p.CreatedAt,
+            Likes = _context.Likes.Count(l => l.PostId == p.Id)  // tæller likes
+        })
+        .ToList();
+
+    return View(posts);
     }
 
     [HttpPost]
@@ -108,17 +119,53 @@ public class PostsController : Controller
     [HttpPost]
     public IActionResult Like(int id)
     {
-        var post = _context.Posts.Find(id);
-        if (post == null)
-            return NotFound();
-        
-        post.Likes++;
-        _context.SaveChanges();
-        
-        return Json(new { likes = post.Likes });
+        var username = HttpContext.Session.GetString("User");
+        if (string.IsNullOrEmpty(username))
+            return Unauthorized();
+
+        var like = _context.Likes.FirstOrDefault(l => l.PostId == id && l.Username == username);
+
+        if (like == null)
+        {
+            // Like
+            _context.Likes.Add(new Like { PostId = id, Username = username });
+            _context.SaveChanges();
+        }
+        else
+        {
+            // Unlike
+            _context.Likes.Remove(like);
+            _context.SaveChanges();
+        }
+
+        int likeCount = _context.Likes.Count(l => l.PostId == id);
+
+        return Json(new { likes = likeCount });
     }
 
-    
-    
-    
+
+    [HttpPost]
+    public IActionResult ToggleLike(int id) 
+    {
+        var username = HttpContext.Session.GetString("User");
+        if (string.IsNullOrEmpty(username))
+            return Unauthorized(new { message = "Du skal være logget ind for at like." });
+
+        var like = _context.Likes.FirstOrDefault(l => l.PostId == id && l.Username == username);
+        if (like != null)
+        {
+            // Brugeren allerede liket, så fjern like (unlike)
+            _context.Likes.Remove(like);
+        }
+        else
+        {
+            // Tilføj like
+            _context.Likes.Add(new Like { PostId = id, Username = username });
+        }
+        _context.SaveChanges();
+
+        // Returnér det nye antal likes 
+        var likeCount = _context.Likes.Count(l => l.PostId == id);
+        return Json(new { likes = likeCount });
+    }
 }

@@ -1,4 +1,4 @@
-﻿@model List<MySocialNetwork.Models.Post>
+﻿@model List<MySocialNetwork.Models.PostViewModel>
 
 <h2>Feed</h2>
 
@@ -40,28 +40,28 @@
 }
 
 @section Scripts {
-<script>
+    <script>
     document.querySelectorAll(".like-btn").forEach(btn => {
         btn.addEventListener("click", function () {
             let postId = this.dataset.id;
             let likeCounterSpan = this.querySelector(".like-count");
-
+           
             fetch(`/Posts/Like/${postId}`, {
                 method: "POST",
-                headers: { "X-Requested-With": "XMLHttpRequest" }
+                headers: {"X-Requested-With": "XMLHttpRequest"}
             })
-            .then(res => {
-                if (!res.ok) throw new Error("Netværksfejl");
-                return res.json();
-            })
-            .then(data => {
-                likeCounterSpan.textContent = data.likes;
-            })
-            .catch(err => {
-                console.error("Fejl ved like:", err);
-                alert("Noget gik galt med at like opslaget.");
-            });
+                .then(res => {
+                    if (!res.ok) throw new Error("Fejl i response");
+                    return res.json();
+                })
+                .then(data => {
+                    likeCounterSpan.textContent = data.likes;
+                })
+                .catch(err => {
+                    alert("Noget gik galt: " + err.message);
+                });
         });
     });
 </script>
 }
+
