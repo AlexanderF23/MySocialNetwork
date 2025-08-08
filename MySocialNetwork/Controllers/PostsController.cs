@@ -105,6 +105,18 @@ public class PostsController : Controller
         return RedirectToAction("Index");
     }
 
+    [HttpPost]
+    public IActionResult Like(int id)
+    {
+        var post = _context.Posts.Find(id);
+        if (post == null)
+            return NotFound();
+        
+        post.Likes++;
+        _context.SaveChanges();
+        
+        return Json(new { likes = post.Likes });
+    }
 
     
     

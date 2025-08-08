@@ -2,15 +2,13 @@
 
 <h2>Feed</h2>
 
-<!-- formular til nyt opslag -->
 <form method="post" asp-action="Create">
     <textarea name="content" class="form-control" placeholder="Skriv noget" rows="3"></textarea>
     <button class="btn btn-primary mt-2">Post</button>
 </form>
 
-<hr/>
+<hr />
 
-<!-- viser alle opslag -->
 @foreach (var post in Model)
 {
     <div class="card mb-3">
@@ -18,16 +16,19 @@
             <strong>@post.Username:</strong>
             <small class="text-muted">@post.CreatedAt.ToString("g")</small>
             <p>@post.Content</p>
-            
+
+            <button type="button" class="btn btn-outline-primary like-btn" data-id="@post.Id">
+                👍 Like (<span class="like-count">@post.Likes</span>)
+            </button>
+
             @if (Context.Session.GetString("User") == post.Username)
             {
                 <a href="/Posts/Edit/@post.Id" class="btn btn-sm btn-secondary">Rediger</a>
-                
                 <form method="post" asp-action="Delete" asp-route-id="@post.Id" style="display:inline;">
                     <button type="submit" class="btn btn-sm btn-danger">Slet</button>
                 </form>
             }
-            
+
             @if (TempData["Message"] != null)
             {
                 <div class="alert alert-success">
@@ -36,4 +37,31 @@
             }
         </div>
     </div>
+}
+
+@section Scripts {
+<script>
+    document.querySelectorAll(".like-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+            let postId = this.dataset.id;
+            let likeCounterSpan = this.querySelector(".like-count");
+
+            fetch(`/Posts/Like/${postId}`, {
+                method: "POST",
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Netværksfejl");
+                return res.json();
+            })
+            .then(data => {
+                likeCounterSpan.textContent = data.likes;
+            })
+            .catch(err => {
+                console.error("Fejl ved like:", err);
+                alert("Noget gik galt med at like opslaget.");
+            });
+        });
+    });
+</script>
 }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using MySocialNetwork.Data;
@@ -24,6 +25,9 @@ if (!app.Environment.IsDevelopment())
 */ 
 
 // placeholder
+
+
+
 
 app.UseDeveloperExceptionPage();
 
