@@ -1,28 +1,31 @@
-﻿@model List<MySocialNetwork.Models.Post>
+﻿@model MySocialNetwork.Models.ProfileViewModel
 
-<h2>Profil for @ViewBag.Username</h2>
+@{
+    ViewData["Title"] = "Profil";
+}
 
-@if (Model.Count == 0)
+<div class="text-center">
+    <h2>@Model.Username's Profil</h2>
+    <img src="~/images/placeholder.png" alt="Profilbillede" class="rounded-circle" width="100" height="100">
+         
+</div>
+
+<hr />
+
+<h3>Opslag</h3>
+@if (Model.Posts.Any())
 {
-    <p>Igen opslag endnu</p>
+    @foreach (var post in Model.Posts)
+        {
+            <div class="card mb-3">
+                <div class="card-body">
+                    <samll class="text-muted">@post.CreatedAt.ToString("g")</samll>
+                    <p>@post.Content</p>
+                </div>
+            </div>
+    }
 }
 else
 {
-    @foreach (var post in Model)
-    {
-        <div class="card mb-3">
-            <div class="card-body">
-                <samll class="text-muted">@post.CreatedAt.ToString("g")</samll>
-                <p>@post.Content</p>
-                
-                @if (Context.Session.GetString("User") == post.Username)
-                {
-                    <a href="/Post/Edit/@post.Id" class="btn btn-sm btn-secondary">Rediger</a>
-                    <form method="post" asp-controller="Posts" asp-action="Delete" asp-route-id="@post.Id" style="display:inline;">
-                        <button type="submit" class="btn btn-sm btn-danger">Slet</button>
-                    </form>
-                }
-            </div>
-        </div>
-    }
+    <p>Ingen opslag endnu.</p>
 }

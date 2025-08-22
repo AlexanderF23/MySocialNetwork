@@ -5,4 +5,6 @@ public class User
     public int Id { get; set; } // primær nøgle
     public string Username { get; set; }
     public string Password { get; set; } 
+    
+    public string ProfilePictureUrl { get; set; } = "/images/default-avatar.png";
 }

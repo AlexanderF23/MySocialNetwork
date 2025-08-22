@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MySocialNetwork.Data;
 using System.Linq;
+using MySocialNetwork.Models;
 
 
 namespace MySocialNetwork.Controllers;
@@ -20,13 +21,29 @@ public class ProfileController : Controller
         {
             username = HttpContext.Session.GetString("User");
         }
+        
+        var user = _context.Users.FirstOrDefault(u => u.Username == username);
+        
+        
+        if (user == null)
+        {
+            return NotFound();
+        }
 
         var posts = _context.Posts
             .Where(p => p.Username == username)
             .OrderByDescending(p => p.CreatedAt)
             .ToList();
+
+        var vm = new ProfileViewModel()
+        {
+            Username = user.Username,
+            ProfilePictureUrl = string.IsNullOrEmpty(user.ProfilePictureUrl)
+                ? "/images/placeholder.png" 
+                : user.ProfilePictureUrl,
+            Posts = posts
+        };
         
-        ViewBag.Username = username;
-        return View(posts);
+        return View(vm);
     }
 }
