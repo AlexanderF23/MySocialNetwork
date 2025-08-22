@@ -6,5 +6,5 @@ public class User
     public string Username { get; set; }
     public string Password { get; set; } 
     
-    public string ProfilePictureUrl { get; set; } = "/images/default-avatar.png";
+    public string ProfilePictureUrl { get; set; } = "/images/placeholder.png";
 }

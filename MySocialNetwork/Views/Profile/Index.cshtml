@@ -6,8 +6,14 @@
 
 <div class="text-center">
     <h2>@Model.Username's Profil</h2>
-    <img src="~/images/placeholder.png" alt="Profilbillede" class="rounded-circle" width="100" height="100">
-         
+    <img src="@Model.ProfilePictureUrl" alt="Profilbillede" class="img-thumbnail" width="150" />
+</div>
+
+<div class="ppChanger">
+    <form asp-action="UploadProfilePicture" method="post" enctype="multipart/form-data">
+        <input type="file" name="profilePicture" accept="image/*" />
+        <button type="submit" class="btn btn-primary mt-2">Upload billede</button>
+    </form>
 </div>
 
 <hr />

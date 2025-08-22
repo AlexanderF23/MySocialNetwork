@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using MySocialNetwork.Data;
 using System.Linq;
 using MySocialNetwork.Models;
+using System.IO;
 
 
 namespace MySocialNetwork.Controllers;
@@ -45,5 +47,35 @@ public class ProfileController : Controller
         };
         
         return View(vm);
+    }
+
+    [HttpPost]
+    public IActionResult UploadProfilePicture(IFormFile profilePicture)
+    {
+        var username = HttpContext.Session.GetString("User");
+        if (string.IsNullOrEmpty(username))
+            return RedirectToAction("login", "Account");
+        
+        var user = _context.Users.FirstOrDefault(u => u.Username == username);
+        if (user == null)
+            return NotFound();
+
+        if (profilePicture != null && profilePicture.Length > 0)
+        {
+            //gemmer billedet i root/images. skal laves om!
+            var fileName = $"{username}_{DateTime.Now.Ticks}{Path.GetExtension(profilePicture.FileName)}";
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/profiles", fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                profilePicture.CopyTo(stream);
+            }
+            
+            //opdatere database url
+            user.ProfilePictureUrl = $"/images/profiles/{fileName}";
+            _context.SaveChanges();
+        }
+        
+        return RedirectToAction("Index");
     }
 }
