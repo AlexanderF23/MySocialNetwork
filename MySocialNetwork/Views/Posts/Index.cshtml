@@ -13,7 +13,11 @@
 {
     <div class="card mb-3">
         <div class="card-body">
-            <strong>@post.Username:</strong>
+            <strong>
+                <a href="/Profile/Index?username=@post.Username">
+                    @post.Username:
+                </a>
+            </strong>
             <small class="text-muted">@post.CreatedAt.ToString("g")</small>
             <p>@post.Content</p>
 
