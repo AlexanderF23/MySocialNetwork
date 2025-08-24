@@ -24,8 +24,13 @@ public class PostsController : Controller
             Content = p.Content,
             Username = p.Username,
             CreatedAt = p.CreatedAt,
-            Likes = _context.Likes.Count(l => l.PostId == p.Id)  // tæller likes
+            Likes = p.Likes,
+            Comments = _context.Comments
+            .Where(c => c.PostId == p.Id)
+            .ToList()
         })
+        
+        .OrderByDescending(p => p.CreatedAt)
         .ToList();
 
     return View(posts);

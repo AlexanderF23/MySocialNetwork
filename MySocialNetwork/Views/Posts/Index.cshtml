@@ -24,6 +24,26 @@
             <button type="button" class="btn btn-outline-primary like-btn" data-id="@post.Id">
                 👍 Like (<span class="like-count">@post.Likes</span>)
             </button>
+            
+            @* Kommentar *@
+            <div class="mt-2">
+                @foreach (var comment in post.Comments)
+                {
+                    <div class="border-top pt-1">
+                        <strong>@comment.Username:</strong> @comment.Content
+                        <small class="text-muted">@comment.CreatedAt.ToString("g")</small>
+                    </div>
+                }
+                
+                @if (Context.Session.GetString("User") != null)
+                {
+                    <form method="post" asp-controller="Comment" asp-action="Create">
+                        <input type="hidden" name="postId" value="@post.Id" />
+                        <input type="text" name="content" class="form-control mt-1" placeholder="Skriv en kommentar"/>
+                        <button class="btn btn-sm btn-primary mt-1">Kommenter</button>
+                    </form>
+                }
+            </div>
 
             @if (Context.Session.GetString("User") == post.Username)
             {

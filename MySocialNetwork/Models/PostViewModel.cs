@@ -10,4 +10,6 @@ public class PostViewModel
     public DateTime CreatedAt { get; set; }
     public int Likes { get; set; }
     
+    public List<Comment> Comments { get; set; } = new List<Comment>();
+    
 }
