@@ -9,6 +9,7 @@
 
 <hr />
 
+<!-- viser alle opslag -->
 @foreach (var post in Model)
 {
     <div class="card mb-3">
@@ -25,25 +26,26 @@
                 👍 Like (<span class="like-count">@post.Likes</span>)
             </button>
             
-            @* Kommentar *@
-            <div class="mt-2">
-                @foreach (var comment in post.Comments)
-                {
-                    <div class="border-top pt-1">
-                        <strong>@comment.Username:</strong> @comment.Content
-                        <small class="text-muted">@comment.CreatedAt.ToString("g")</small>
-                    </div>
-                }
-                
-                @if (Context.Session.GetString("User") != null)
-                {
-                    <form method="post" asp-controller="Comment" asp-action="Create">
-                        <input type="hidden" name="postId" value="@post.Id" />
-                        <input type="text" name="content" class="form-control mt-1" placeholder="Skriv en kommentar"/>
-                        <button class="btn btn-sm btn-primary mt-1">Kommenter</button>
-                    </form>
-                }
-            </div>
+            <!-- Kommentar -->
+        <div class="mt-2 comments-container">
+            @foreach (var comment in post.Comments)
+            {
+                <div class="border-top pt-1">
+                    <strong>@comment.Username:</strong> @comment.Content
+                    <small class="text-muted">@comment.CreatedAt.ToString("g")</small>
+                </div>
+            }
+        </div>
+
+        @if (Context.Session.GetString("User") != null)
+        {
+            <form class="comment-form mt-1">
+                <input type="hidden" name="postId" value="@post.Id" />
+                <input type="text" name="content" class="form-control" placeholder="Skriv en kommentar"/>
+                <button type="submit" class="btn btn-sm btn-primary mt-1">Kommenter</button>
+            </form>
+        }
+            
 
             @if (Context.Session.GetString("User") == post.Username)
             {
@@ -65,27 +67,51 @@
 
 @section Scripts {
     <script>
+        // like knap
     document.querySelectorAll(".like-btn").forEach(btn => {
         btn.addEventListener("click", function () {
             let postId = this.dataset.id;
             let likeCounterSpan = this.querySelector(".like-count");
-           
+
             fetch(`/Posts/Like/${postId}`, {
                 method: "POST",
                 headers: {"X-Requested-With": "XMLHttpRequest"}
             })
-                .then(res => {
-                    if (!res.ok) throw new Error("Fejl i response");
-                    return res.json();
-                })
+                .then(res => res.json())
                 .then(data => {
                     likeCounterSpan.textContent = data.likes;
-                })
-                .catch(err => {
-                    alert("Noget gik galt: " + err.message);
                 });
         });
     });
-</script>
+    
+    
+    // Live Kommentarer
+        document.querySelectorAll(".comment-form").forEach(form => {
+            form.addEventListener("submit", function(e) {
+                e.preventDefault();
+                const postId = this.querySelector("input[name='postId']").value;
+                const contentInput = this.querySelector("input[name='content']");
+                const content = contentInput.value;
+                const commentContainer = this.previousElementSibling;
+                
+                fetch(`/Comment/Create?postId=${postId}&content=${encodeURIComponent(content)}`, {
+                    method: "POST",
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            const newComment = document.createElement("div");
+                            newComment.classList.add("border-top", "pt-1");
+                            newComment.innerHTML = `<strong>${data.comment.username}:</strong> ${data.comment.content} <small class="text-muted">${data.comment.createdAt}</small>`;
+                            commentContainer.appendChild(newComment);
+                            contentInput.value = ""; // nulstil inputfelt
+                        } else {
+                            alert(data.message);
+                        }
+                });
+        });
+    });
+    </script>
 }
 

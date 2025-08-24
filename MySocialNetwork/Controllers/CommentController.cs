@@ -19,10 +19,11 @@ public class CommentController : Controller
     {
         var username = HttpContext.Session.GetString("User");
         if (string.IsNullOrEmpty(username))
-            return RedirectToAction("login", "Account");
-        
+            return Json(new { success = false, message = "Du skal være logget ind." });
+
+
         if (string.IsNullOrEmpty(content))
-            return RedirectToAction("Index", "Posts");
+            return Json(new { succsess = false, message = "Kommentar kan ikke være tom" });
 
         var comment = new Comment
         {
@@ -34,7 +35,16 @@ public class CommentController : Controller
 
         _context.Comments.Add(comment);
         _context.SaveChanges();
-        
-        return RedirectToAction("Index", "Posts");
+
+        return Json(new
+        {
+            success = true,
+            comment = new
+            {
+                username = comment.Username,
+                content = comment.Content,
+                createdAt = comment.CreatedAt.ToString("g")
+            }
+        });
     }
 }
